@@ -37,7 +37,10 @@ def test_get_migrations_to_apply(settings):
 
     # no manual folder
     result = migrations.get_migrations_to_apply('17.02')
-    migs = ['17.02-0-version-dml.sql', '17.02-feature_a-ddl.sql']
+    migs = ['17.02-0-version-dml.sql',
+            '17.02-feature_a-ddl.sql',
+            '17.02-feature_b_manual-dml.sql',
+            '17.02-feature_c_fakemanual-ddl.sql']
     assert result == {
         mig: os.path.join(
             settings.NORTH_MIGRATIONS_ROOT, '17.02', mig) for mig in migs
@@ -86,7 +89,8 @@ def test_build_migration_plan(settings, mocker):
     }
     migs = ['16.12-0-version-dml.sql']
     plan1612['plan'] += [
-        (mig, True, os.path.join(settings.NORTH_MIGRATIONS_ROOT, '16.12', mig))
+        (mig, True, os.path.join(settings.NORTH_MIGRATIONS_ROOT, '16.12', mig),
+         False)
         for mig in migs
     ]
     plan1701 = {
@@ -101,13 +105,13 @@ def test_build_migration_plan(settings, mocker):
     ]
     plan1701['plan'] += [
         (mig, False, os.path.join(
-            settings.NORTH_MIGRATIONS_ROOT, '17.01', mig))
+            settings.NORTH_MIGRATIONS_ROOT, '17.01', mig), False)
         for mig in migs
     ]
     migs = ['17.01-feature_a-040-dml.sql']
     plan1701['plan'] += [
         (mig, False, os.path.join(
-            settings.NORTH_MIGRATIONS_ROOT, '17.01/manual', mig))
+            settings.NORTH_MIGRATIONS_ROOT, '17.01/manual', mig), True)
         for mig in migs
     ]
     migs = [
@@ -116,7 +120,7 @@ def test_build_migration_plan(settings, mocker):
     ]
     plan1701['plan'] += [
         (mig, False, os.path.join(
-            settings.NORTH_MIGRATIONS_ROOT, '17.01', mig))
+            settings.NORTH_MIGRATIONS_ROOT, '17.01', mig), False)
         for mig in migs
     ]
     plan1702 = {
@@ -129,7 +133,23 @@ def test_build_migration_plan(settings, mocker):
     ]
     plan1702['plan'] += [
         (mig, False, os.path.join(
-            settings.NORTH_MIGRATIONS_ROOT, '17.02', mig))
+            settings.NORTH_MIGRATIONS_ROOT, '17.02', mig), False)
+        for mig in migs
+    ]
+    migs = [
+        '17.02-feature_b_manual-dml.sql',
+    ]
+    plan1702['plan'] += [
+        (mig, False, os.path.join(
+            settings.NORTH_MIGRATIONS_ROOT, '17.02', mig), True)
+        for mig in migs
+    ]
+    migs = [
+        '17.02-feature_c_fakemanual-ddl.sql',
+    ]
+    plan1702['plan'] += [
+        (mig, False, os.path.join(
+            settings.NORTH_MIGRATIONS_ROOT, '17.02', mig), False)
         for mig in migs
     ]
 

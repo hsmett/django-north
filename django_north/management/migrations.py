@@ -1,3 +1,4 @@
+import io
 import os
 from distutils.version import StrictVersion
 from importlib import import_module
@@ -268,6 +269,22 @@ def get_fixtures_for_init(target_version):
     return version
 
 
+def is_manual_migration(file_handler):
+    if '/manual/' in file_handler.name:
+        return True
+
+    if not file_handler.name.endswith('dml.sql'):
+        return False
+
+    for line in file_handler:
+        if '--meta-psql:' in line:
+            file_handler.seek(0)
+            return True
+
+    file_handler.seek(0)
+    return False
+
+
 def build_migration_plan():
     """
     Return the list of migrations by version,
@@ -328,7 +345,10 @@ def build_migration_plan():
         # build plan
         for mig in migs:
             applied = mig in applied_migrations
-            version_plan.append((mig, applied, migrations_to_apply[mig]))
+            path = migrations_to_apply[mig]
+            with io.open(path, 'r', encoding='utf8') as f:
+                is_manual = is_manual_migration(f)
+            version_plan.append((mig, applied, path, is_manual))
         migration_plan['plans'].append({
             'version': version,
             'plan': version_plan
