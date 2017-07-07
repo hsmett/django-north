@@ -6,13 +6,13 @@ History
 0.1.6 (unreleased)
 ++++++++++++++++++
 
-- Nothing changed yet.
+- Detect manual files if not stored in the 'manual' dir.
 
 
 0.1.5 (2017-05-24)
 ++++++++++++++++++
 
-- Fix showfixtures command for Django 1.10
+- Fix showfixtures command for Django 1.10.
 
 
 0.1.4 (2017-05-10)
